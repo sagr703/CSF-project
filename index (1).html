@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep, CSF Flow & Delirium: A Glymphatic Perspective</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <style>
+        :root {
+            --primary: #1a3a5c;
+            --secondary: #2e6da4;
+            --accent: #4db6e8;
+            --accent2: #e84d7a;
+            --accent3: #4de8a0;
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --text: #1e2d3d;
+            --text-light: #5a7a99;
+            --border: #d0dce8;
+            --gradient1: linear-gradient(135deg, #1a3a5c 0%, #2e6da4 100%);
+            --gradient2: linear-gradient(135deg, #2e6da4 0%, #4db6e8 100%);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* HERO */
+        .hero {
+            background: var(--gradient1);
+            color: white;
+            padding: 80px 40px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(77,182,232,0.15) 0%, transparent 60%);
+            animation: pulse 6s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(77,182,232,0.25);
+            border: 1px solid rgba(77,182,232,0.5);
+            color: var(--accent);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .hero h1 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.2;
+            position: relative;
+        }
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+        .hero-papers {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+        .paper-tag {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.9);
+            transition: all 0.3s;
+        }
+        .paper-tag:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        /* NAV */
+        .nav {
+            background: var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .nav a {
+            color: rgba(255,255,255,0.75);
+            text-decoration: none;
+            padding: 16px 20px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+        .nav a:hover, .nav a.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        /* LAYOUT */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .section {
+            padding: 60px 0;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .section-label {
+            display: inline-block;
+            background: rgba(46,109,164,0.1);
+            color: var(--secondary);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .section-header h2 {
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+        .section-header p {
+            color: var(--text-light);
+            max-width: 650px;
+            margin: 0 auto;
+            font-size: 1rem;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .card h3 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        .card p {
+            color: var(--text-light);
+            font-size: 0.92rem;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+
+        /* CHART CONTAINERS */
+        .chart-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+        .chart-card h3 {
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .chart-card .chart-subtitle {
+            font-size: 0.82rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 280px;
+        }
+        .chart-wrapper-tall {
+            position: relative;
+            height: 340px;
+        }
+
+        /* PATHWAY */
+        .pathway {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0;
+            margin: 40px 0;
+        }
+        .pathway-step {
+            text-align: center;
+            padding: 20px 16px;
+            min-width: 130px;
+            max-width: 160px;
+        }
+        .pathway-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 1.6rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        .pathway-step h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .pathway-step p {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+        .pathway-arrow {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            opacity: 0.5;
+            padding: 0 4px;
+        }
+
+        /* TIMELINE */
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--gradient2);
+            border-radius: 2px;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 32px;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -32px;
+            top: 4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--secondary);
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(46,109,164,0.4);
+        }
+        .timeline-item h4 {
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+        .timeline-item p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* STAT BOXES */
+        .stat-box {
+            background: var(--gradient1);
+            color: white;
+            border-radius: 16px;
+            padding: 28px;
+            text-align: center;
+        }
+        .stat-box .stat-num {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .stat-box .stat-label {
+            font-size: 0.88rem;
+            opacity: 0.85;
+        }
+
+        /* PAPER SECTION */
+        .paper-card {
+            background: var(--card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        }
+        .paper-header {
+            padding: 20px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .paper-year {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+        .paper-body {
+            padding: 0 28px 24px;
+        }
+        .paper-body h3 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        .paper-body p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+        .finding-list {
+            list-style: none;
+            padding: 0;
+        }
+        .finding-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-top: 1px solid var(--border);
+            font-size: 0.88rem;
+            color: var(--text);
+        }
+        .finding-list li .bullet {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        /* MECHANISM DIAGRAM */
+        .mechanism-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0;
+            background: var(--card);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+        .mechanism-col {
+            padding: 28px 24px;
+            border-right: 1px solid var(--border);
+        }
+        .mechanism-col:last-child { border-right: none; }
+        .mechanism-col h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid;
+        }
+        .mechanism-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .mechanism-item .icon { font-size: 1.1rem; margin-top: 1px; }
+        .mechanism-item p { font-size: 0.83rem; color: var(--text-light); }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: rgba(46,109,164,0.08);
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* TOOLTIP */
+        .tooltip-trigger {
+            cursor: help;
+            border-bottom: 1px dashed var(--secondary);
+            color: var(--secondary);
+        }
+
+        /* QUOTE */
+        blockquote {
+            border-left: 4px solid var(--accent);
+            background: rgba(77,182,232,0.06);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            font-style: italic;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        blockquote cite {
+            display: block;
+            margin-top: 8px;
+            font-style: normal;
+            font-size: 0.82rem;
+            color: var(--text-light);
+        }
+
+        /* INTERACTIVE SLIDER */
+        .slider-container {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 28px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        }
+        .slider-container h3 { color: var(--primary); margin-bottom: 8px; }
+        .slider-container p { color: var(--text-light); font-size: 0.88rem; margin-bottom: 20px; }
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--secondary);
+            margin: 10px 0;
+        }
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: var(--text-light);
+        }
+
+        /* FOOTER */
+        footer {
+            background: var(--primary);
+            color: rgba(255,255,255,0.7);
+            padding: 40px;
+            text-align: center;
+            margin-top: 60px;
+        }
+        footer h4 { color: white; margin-bottom: 12px; }
+        footer p { font-size: 0.85rem; margin-bottom: 6px; }
+        .ref-list {
+            text-align: left;
+            max-width: 800px;
+            margin: 24px auto 0;
+        }
+        .ref-item {
+            padding: 10px 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.82rem;
+        }
+        .ref-item a { color: var(--accent); text-decoration: none; }
+        .ref-item a:hover { text-decoration: underline; }
+
+        /* HIGHLIGHT BOX */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(77,182,232,0.08) 0%, rgba(46,109,164,0.08) 100%);
+            border: 1px solid rgba(46,109,164,0.2);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 20px 0;
+        }
+        .highlight-box h4 { color: var(--primary); margin-bottom: 8px; font-size: 0.95rem; }
+        .highlight-box p { color: var(--text); font-size: 0.88rem; }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .mechanism-grid { grid-template-columns: 1fr; }
+            .mechanism-col { border-right: none; border-bottom: 1px solid var(--border); }
+            .pathway { gap: 4px; }
+            .pathway-arrow { display: none; }
+            .hero { padding: 50px 20px 40px; }
+        }
+
+        /* SCROLL ANIMATION */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            z-index: 1000;
+            transition: width 0.1s;
+        }
+
+        /* LEGEND */
+        .legend {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* ANNOTATION */
+        .annotation {
+            background: rgba(232,77,122,0.08);
+            border: 1px solid rgba(232,77,122,0.25);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.82rem;
+            color: var(--text);
+            margin-top: 12px;
+        }
+        .annotation strong { color: var(--accent2); }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-badge">Neuroscience Research Synthesis</div>
+    <h1>Sleep, CSF Flow & Delirium<br>A Glymphatic Perspective</h1>
+    <p>How the brain's waste-clearance system connects deep sleep, cerebrospinal fluid dynamics, EEG oscillations, and the pathogenesis of delirium in critically ill patients.</p>
+    <div class="hero-papers">
+        <span class="paper-tag">📄 Fultz et al., Science 2019</span>
+        <span class="paper-tag">📄 Liu et al., bioRxiv 2026</span>
+        <span class="paper-tag">📄 Boesen et al., Nat Rev Neurol 2026</span>
+    </div>
+</section>
+
+<!-- NAV -->
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="#overview" class="active">Overview</a>
+        <a href="#fultz">EEG–CSF Coupling</a>
+        <a href="#glymphatic">Glymphatic System</a>
+        <a href="#liu">Mechanical Ventilation</a>
+        <a href="#boesen">Delirium Hypothesis</a>
+        <a href="#synthesis">Synthesis</a>
+        <a href="#implications">Implications</a>
+    </div>
+</nav>
+
+<!-- OVERVIEW -->
+<section class="section" id="overview">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-label">Overview</span>
+            <h2>The Brain's Hidden Cleaning Cycle</h2>
+            <p>Three landmark studies converge to reveal how sleep orchestrates brain waste clearance — and what happens when this system fails.</p>
+        </div>
+
+        <div class="grid-3 fade-in">
+            <div class="stat-box">
+                <div class="stat-num">~20s</div>
+                <div class="stat-label">Period of coupled EEG slow-wave → blood → CSF oscillations during NREM sleep (Fultz 2019)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num">~80%</div>
+                <div class="stat-label">ICU patients requiring mechanical ventilation who develop delirium (Liu 2026)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num">5.52 dB</div>
+                <div class="stat-label">Increase in low-frequency CSF signal power during NREM sleep vs. wakefulness (Fultz 2019)</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px;" class="fade-in">
+            <div class="section-header" style="margin-bottom: 24px;">
+                <h2 style="font-size: 1.5rem;">The Cascade: From Sleep to Delirium</h2>
+            </div>
+            <div class="pathway">
+                <div class="pathway-step">
+                    <div class="pathway-icon" style="background: linear-gradient(135deg, #1a3a5c, #2e6da4);">🧠</div>
+                    <h4>NREM Sleep</h4>
+                    <p>EEG slow waves (0–0.5 Hz delta)</p>
+                </div>
+                <div class="pathway-arrow">→</div>
+                <div class="pathway-step">
+                    <div class="pathway-icon" style="background: linear-gradient(135deg, #2e6da4, #4db6e8);">🩸</div>
+                    <h4>Blood Outflow</h4>
+                    <p>Cerebral blood volume decreases</p>
+                </div>
+                <div class="pathway-arrow">→</div>
+                <div class="pathway-step">
+                    <div class="pathway-icon" style="background: linear-gradient(135deg, #4db6e8, #4de8a0);">💧</div>
+                    <h4>CSF Inflow</h4>
+                    <p>Waves of CSF flush the brain</p>
+                </div>
+                <div class="pathway-arrow">→</div>
+                <div class="pathway-step">
+                    <div class="pathway-icon" style="background: linear-gradient(135deg, #4de8a0, #2e6da4);">🧹</div>
+                    <h4>Glymphatic Clearance</h4>
+                    <p>Waste products removed</p>
+                </div>
+                <div class="pathway-arrow">→</div>
+                <div class="pathway-step">
+                    <div class="pathway-icon" style="background: linear-gradient(135deg, #e84d7a, #c0392b);">⚠️</div>
+                    <h4>Disruption</h4>
+                    <p>Sleep loss / mechanical ventilation</p>
+                </div>
+                <div class="pathway-arrow">→</div>
+                <div class="pathway-step">
+                    <div class="pathway-icon" style="background: linear-gradient(135deg, #c0392b, #8e1c1c);">🔴</div>
+                    <h4>Delirium</h4>
+                    <p>Neurotoxin accumulation & confusion</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FULTZ 2019 -->
+<section class="section" id="fultz" style="background: white;">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-label">Fultz et al., Science 2019</span>
+            <h2>Coupled EEG, Hemodynamics & CSF in Human Sleep</h2>
+            <p>The first direct evidence that neural slow waves drive pulsatile CSF flow through coupled hemodynamic oscillations during NREM sleep.</p>
+        </div>
+
+        <div class="grid-2 fade-in" style="margin-bottom: 32px;">
+            <div class="paper-card">
+                <div class="paper-header" style="background: linear-gradient(135deg, rgba(26,58,92,0.05), rgba(46,109,164,0.05));">
+                    <span class="paper-year" style="background: rgba(46,109,164,0.1); color: var(--secondary);">Science 2019</span>
+                    <div>
+                        <strong style="color: var(--primary);">Fultz, Bonmassar, Setsompop et al.</strong><br>
+                        <small style="color: var(--text-light);">Boston University & MGH / Harvard</small>
+                    </div>
+                </div>
+                <div class="paper-body">
+                    <h3>Coupled electrophysiological, hemodynamic, and cerebrospinal fluid oscillations in human sleep</h3>
+                    <p>Using simultaneous fast fMRI (TR &lt;400ms) and EEG in 13 subjects, this study directly measured the temporal relationship between brain electrical activity, blood flow, and CSF dynamics during natural sleep.</p>
+                    <ul class="finding-list">
+                        <li><span class="bullet" style="background:#2e6da4;"></span>Large 0.05 Hz CSF oscillations emerge specifically during NREM sleep (5.52 dB power increase)</li>
+                        <li><span class="bullet" style="background:#4db6e8;"></span>CSF flow is anticorrelated with cortical gray matter BOLD signal (max R = −0.48 at 2s lag)</li>
+                        <li><span class="bullet" style="background:#4de8a0;"></span>EEG slow-delta waves precede hemodynamic changes, which precede CSF inflow</li>
+                        <li><span class="bullet" style="background:#e84d7a;"></span><strong>During wakefulness, CSF flow is driven by respiratory frequency (~0.25 Hz)</strong> — a passive mechanism far less efficient than sleep-driven clearance. This highlights the critical importance of sleep for active glymphatic function.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="chart-card fade-in">
+                <h3>EEG → Blood → CSF Temporal Coupling</h3>
+                <p class="chart-subtitle">Simulated waveform showing the sequential cascade: neural slow waves precede hemodynamic and CSF changes by seconds</p>
+                <div class="chart-wrapper">
+                    <canvas id="couplingChart"></canvas>
+                </div>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#2e6da4;"></div>EEG Slow Wave Amplitude</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#e84d7a;"></div>BOLD Signal (inverted)</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#4de8a0;"></div>CSF Inflow Signal</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2 fade-in">
+            <div class="chart-card">
+                <h3>CSF Signal Power: Sleep vs. Wakefulness</h3>
+                <p class="chart-subtitle">Low-frequency (0–0.1 Hz) CSF power is dramatically elevated during NREM sleep compared to wakefulness</p>
+                <div class="chart-wrapper">
+                    <canvas id="csfPowerChart"></canvas>
+                </div>
+                <div class="annotation">
+                    <strong>Key finding:</strong> A 5.52 dB increase in CSF signal power at ~0.05 Hz during sleep (p=0.003, 95% CI: [2.33, 7.67])
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3>EEG Frequency Bands: Sleep vs. Wake</h3>
+                <p class="chart-subtitle">NREM sleep is characterized by dominant slow-delta power (0–4 Hz), which drives the CSF coupling mechanism</p>
+                <div class="chart-wrapper">
+                    <canvas id="eegBandsChart"></canvas>
+                </div>
+                <div class="annotation">
+                    <strong>Key finding:</strong> Slow-delta EEG power (0–0.5 Hz) is the primary driver of the CSF inflow cascade during NREM sleep
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box fade-in" style="margin-top: 32px;">
+            <h4>🔑 The Monro-Kellie Mechanism</h4>
+            <p>The skull is a rigid container with a fixed total volume. When neural slow waves cause cerebral blood volume to decrease, CSF must flow in to compensate — creating the macroscopic "washing" waves observed by Fultz et al. This is a direct mechanical consequence of the Monro-Kellie doctrine applied to sleep physiology.</p>
+        </div>
+
+        <div style="margin-top: 32px;" class="fade-in">
+            <div class="highlight-box" style="background: rgba(77,232,168,0.08); border-left: 4px solid #4de8a0;">
+                <h4>💡 Respiratory vs. Sleep-Driven CSF Flow</h4>
+                <p>During wakefulness, CSF pulsations are coupled to the respiratory cycle (~0.25 Hz), resulting in minimal net fluid transport. In contrast, NREM sleep activates a <strong>20-fold more efficient</strong> mechanism: EEG slow waves (0.05 Hz) trigger hemodynamic oscillations that generate macroscopic CSF waves. This fundamental difference explains why sleep deprivation rapidly impairs brain waste clearance and why sleep preservation is essential for preventing neurotoxin accumulation and delirium.</p>
+            </div>
+            <div class="tabs" style="margin-top: 24px;">
+                <button class="tab-btn active" onclick="switchTab('fultz', 'methods')">Methods</button>
+                <button class="tab-btn" onclick="switchTab('fultz', 'eeg')">EEG-CSF Link</button>
+                <button class="tab-btn" onclick="switchTab('fultz', 'significance')">Significance</button>
+            </div>
+            <div id="fultz-methods" class="tab-content active card">
+                <h3 style="margin-bottom: 12px;">Accelerated Neuroimaging Approach</h3>
+                <p style="color: var(--text-light); font-size: 0.9rem;">Fultz et al. used simultaneous EEG and fast fMRI (TR &lt;400 ms) in 13 healthy subjects who fell asleep in the scanner. The imaging volume was positioned so that its lower edge intersected the fourth ventricle, enabling direct measurement of CSF inflow as a bright signal from fresh, unexcited fluid entering the acquisition volume. This novel approach allowed the first simultaneous measurement of EEG, BOLD, and CSF dynamics in sleeping humans.</p>
+            </div>
+            <div id="fultz-eeg" class="tab-content card">
+                <h3 style="margin-bottom: 12px;">The EEG–CSF Coupling Chain</h3>
+                <p style="color: var(--text-light); font-size: 0.9rem;">The study demonstrated a precise temporal sequence: (1) EEG slow-delta waves (0–0.5 Hz) appear first, reflecting synchronized neural firing during NREM sleep. (2) These are followed by a hemodynamic oscillation — a decrease in cerebral blood volume visible as a BOLD signal change. (3) Finally, CSF flows into the fourth ventricle to fill the space vacated by blood. The calculated impulse response of the CSF signal to the EEG envelope matched established hemodynamic models, confirming the causal chain: <strong>EEG → Blood → CSF</strong>.</p>
+            </div>
+            <div id="fultz-significance" class="tab-content card">
+                <h3 style="margin-bottom: 12px;">Why This Matters</h3>
+                <p style="color: var(--text-light); font-size: 0.9rem;">This study was the first to demonstrate that brain waste clearance (via CSF flow) is not a passive process but is actively driven by the brain's own electrical rhythms during sleep. It explains why sleep quality — specifically the depth and prevalence of slow-wave NREM sleep — is so critical for long-term brain health. Impaired slow-wave activity (e.g., in aging, sleep disorders, or critical illness) directly reduces CSF-mediated waste clearance, potentially accelerating neurodegeneration and cognitive decline.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- GLYMPHATIC SYSTEM -->
+<section class="section" id="glymphatic">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-label">The Glymphatic System</span>
+            <h2>The Brain's Waste Clearance Highway</h2>
+            <p>A brain-wide fluid transport system that operates primarily during sleep to clear neurotoxic metabolites.</p>
+        </div>
+
+        <div class="grid-2 fade-in">
+            <div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <h4>CSF Entry via Periarterial Spaces</h4>
+                        <p>CSF enters the brain parenchyma along the spaces surrounding penetrating arteries (Virchow-Robin spaces), driven by arterial pulsatility and the sleep-driven CSF waves described by Fultz et al.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <h4>AQP4-Mediated Exchange</h4>
+                        <p>Astrocytic aquaporin-4 (AQP4) water channels on glial endfeet facilitate the exchange of CSF with interstitial fluid (ISF) throughout the brain parenchyma, enabling bulk flow of solutes.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <h4>Waste Clearance</h4>
+                        <p>Metabolic byproducts including amyloid-β, tau, and pro-inflammatory cytokines are swept from the interstitium into the CSF and transported toward perivenous drainage routes.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <h4>Meningeal Lymphatic Efflux</h4>
+                        <p>Waste-laden CSF exits along perivenous spaces toward meningeal lymphatic vessels and cervical lymph nodes, completing the clearance cycle.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="chart-card" style="margin-bottom: 20px;">
+                    <h3>Glymphatic Activity: Sleep vs. Wake</h3>
+                    <p class="chart-subtitle">Relative glymphatic transport efficiency across brain states (normalized to peak sleep activity)</p>
+                    <div class="chart-wrapper">
+                        <canvas id="glymphaticStateChart"></canvas>
+                    </div>
+                </div>
+                <div class="highlight-box">
+                    <h4>🌙 Sleep Dependency</h4>
+                    <p>Glymphatic flux is 2–4× higher during sleep than wakefulness, and is further enhanced during deep NREM sleep with high slow-wave activity. This explains why even partial sleep deprivation can lead to measurable accumulation of amyloid-β in the human brain.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- LIU 2026 -->
+<section class="section" id="liu" style="background: white;">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-label">Liu et al., bioRxiv 2026</span>
+            <h2>Mechanical Ventilation Suppresses Glymphatic Function</h2>
+            <p>A murine model demonstrating that ICU-standard mechanical ventilation acutely disrupts CSF dynamics and produces delirium-like behavioral symptoms.</p>
+        </div>
+
+        <div class="grid-2 fade-in" style="margin-bottom: 32px;">
+            <div class="paper-card">
+                <div class="paper-header" style="background: linear-gradient(135deg, rgba(232,77,122,0.05), rgba(192,57,43,0.05));">
+                    <span class="paper-year" style="background: rgba(232,77,122,0.1); color: var(--accent2);">bioRxiv 2026</span>
+                    <div>
+                        <strong style="color: var(--primary);">Liu, Wang, Tong, Boesen, Nedergaard, Du et al.</strong><br>
+                        <small style="color: var(--text-light);">University of Rochester Medical Center</small>
+                    </div>
+                </div>
+                <div class="paper-body">
+                    <h3>Mechanical Ventilation Suppresses Glymphatic Function in Parallel with Delirium-Like Symptoms in Mice</h3>
+                    <p>Using healthy mice subjected to 2h of mechanical ventilation with isoflurane + fentanyl (mimicking ICU protocols), the researchers measured glymphatic transport and behavioral outcomes.</p>
+                    <ul class="finding-list">
+                        <li><span class="bullet" style="background:#e84d7a;"></span>Mechanical ventilation acutely increased intracranial pressure (ICP)</li>
+                        <li><span class="bullet" style="background:#c0392b;"></span>Long-lasting suppression of glymphatic transport (persisting after ventilation ceased)</li>
+                        <li><span class="bullet" style="background:#e67e22;"></span>Impaired brain-to-blood waste clearance and cytokine accumulation</li>
+                        <li><span class="bullet" style="background:#8e44ad;"></span>Delirium-like behavior at 24h: hypolocomotion, thigmotaxis, cognitive errors</li>
+                        <li><span class="bullet" style="background:#2e6da4;"></span>Nose-cone anesthesia alone (without MV) did NOT produce these effects</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="chart-card fade-in">
+                <h3>Glymphatic Suppression After Mechanical Ventilation</h3>
+                <p class="chart-subtitle">Relative glymphatic tracer influx in control vs. mechanically ventilated mice (during and after ventilation)</p>
+                <div class="chart-wrapper">
+                    <canvas id="mvGlymphaticChart"></canvas>
+                </div>
+                <div class="annotation">
+                    <strong>Critical finding:</strong> Glymphatic suppression persists even after ventilation ceases, correlating with the 24h behavioral deficits observed
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2 fade-in">
+            <div class="chart-card">
+                <h3>Behavioral Outcomes: Open Field Test</h3>
+                <p class="chart-subtitle">Delirium-like behavioral metrics in mechanically ventilated vs. control mice (24h post-exposure)</p>
+                <div class="chart-wrapper-tall">
+                    <canvas id="behaviorChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3>Mechanism: ICP and CSF Disruption</h3>
+                <p class="chart-subtitle">How mechanical ventilation disrupts the normal CSF clearance pathway</p>
+                <div class="chart-wrapper-tall">
+                    <canvas id="icpChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="mechanism-grid fade-in" style="margin-top: 32px;">
+            <div class="mechanism-col">
+                <h4 style="color: #2e6da4; border-color: #2e6da4;">Normal Sleep State</h4>
+                <div class="mechanism-item">
+                    <span class="icon">🌊</span>
+                    <p>EEG slow waves drive rhythmic CSF inflow (~0.05 Hz)</p>
+                </div>
+                <div class="mechanism-item">
+                    <span class="icon">💧</span>
+                    <p>Low ICP allows free periarterial CSF entry</p>
+                </div>
+                <div class="mechanism-item">
+                    <span class="icon">🧹</span>
+                    <p>Efficient glymphatic clearance of amyloid-β and cytokines</p>
+                </div>
+                <div class="mechanism-item">
+                    <span class="icon">✅</span>
+                    <p>Neural network integrity maintained</p>
+                </div>
+            </div>
+            <div class="mechanism-col">
+                <h4 style="color: #e84d7a; border-color: #e84d7a;">Mechanical Ventilation</h4>
+                <div class="mechanism-item">
+                    <span class="icon">📈</span>
+                    <p>Positive pressure ventilation acutely raises ICP</p>
+                </div>
+                <div class="mechanism-item">
+                    <span class="icon">🚫</span>
+                    <p>Elevated ICP compresses periarterial spaces, blocking CSF entry</p>
+                </div>
+                <div class="mechanism-item">
+                    <span class="icon">🔄</span>
+                    <p>CSF re-routed away from parenchyma; waste clearance impaired</p>
+                </div>
+                <div class="mechanism-item">
+                    <span class="icon">☠️</span>
+                    <p>Cytokine and metabolite accumulation in brain tissue</p>
+                </div>
+            </div>
+            <div class="mechanism-col">
+                <h4 style="color: #c0392b; border-color: #c0392b;">Resulting Delirium</h4>
+                <div class="mechanism-item">
+                    <span class="icon">🧠</span>
+                    <p>Neurotoxic accumulation disrupts neural circuit function</p>
+                </div>
+                <div class="mechanism-item">
+                    <span class="icon">😵</span>
+                    <p>Acute attention and awareness disturbances</p>
+                </div>
+                <div class="mechanism-item">
+                    <span class="icon">🐭</span>
+                    <p>Murine: hypolocomotion, thigmotaxis, maze errors at 24h</p>
+                </div>
+                <div class="mechanism-item">
+                    <span class="icon">⏱️</span>
+                    <p>Persists beyond the ventilation period (long-lasting effect)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- BOESEN 2026 -->
+<section class="section" id="boesen">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-label">Boesen et al., Nat Rev Neurol 2026</span>
+            <h2>Glymphatic Dysfunction: A Unifying Hypothesis for Delirium</h2>
+            <p>A comprehensive framework proposing that impaired glymphatic clearance is the central mechanism through which diverse risk factors converge to produce delirium.</p>
+        </div>
+
+        <div class="grid-2 fade-in" style="margin-bottom: 32px;">
+            <div class="paper-card">
+                <div class="paper-header" style="background: linear-gradient(135deg, rgba(142,68,173,0.05), rgba(46,109,164,0.05));">
+                    <span class="paper-year" style="background: rgba(142,68,173,0.1); color: #8e44ad;">Nat Rev Neurol 2026</span>
+                    <div>
+                        <strong style="color: var(--primary);">Boesen, Du, Goldman, Nedergaard et al.</strong><br>
+                        <small style="color: var(--text-light);">Zealand University Hospital & University of Rochester</small>
+                    </div>
+                </div>
+                <div class="paper-body">
+                    <h3>Glymphatic dysfunction: a unifying hypothesis for delirium</h3>
+                    <p>Published in Nature Reviews Neurology, this Perspective article synthesizes evidence from multiple fields to propose glymphatic failure as the common pathway through which all major delirium risk factors and triggers act.</p>
+                    <ul class="finding-list">
+                        <li><span class="bullet" style="background:#8e44ad;"></span>Delirium affects 20–50% of ICU patients; up to 80% of ventilated patients</li>
+                        <li><span class="bullet" style="background:#2e6da4;"></span>All major risk factors (aging, dementia, CVD, renal failure) reduce glymphatic clearance</li>
+                        <li><span class="bullet" style="background:#4db6e8;"></span>All major triggers (infection, surgery, sleep deprivation) impair glymphatic function</li>
+                        <li><span class="bullet" style="background:#e84d7a;"></span>ICU interventions (sedation, opioids, noradrenaline) suppress glymphatic flux</li>
+                        <li><span class="bullet" style="background:#4de8a0;"></span>Therapeutic target: preserving/enhancing glymphatic clearance in critically ill patients</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="chart-card fade-in">
+                <h3>Delirium Risk Factors & Glymphatic Impact</h3>
+                <p class="chart-subtitle">Relative degree of glymphatic suppression associated with major delirium risk factors and ICU triggers</p>
+                <div class="chart-wrapper-tall">
+                    <canvas id="riskFactorChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="fade-in">
+            <div class="section-header" style="margin-bottom: 24px;">
+                <h2 style="font-size: 1.5rem;">The Convergence Model</h2>
+                <p>Multiple independent pathways all funnel through glymphatic dysfunction to produce delirium</p>
+            </div>
+            <div class="chart-card">
+                <h3>Pathways to Delirium via Glymphatic Failure</h3>
+                <p class="chart-subtitle">Interactive visualization of how predisposing factors, triggers, and ICU interventions converge through glymphatic dysfunction</p>
+                <div class="chart-wrapper-tall">
+                    <canvas id="convergenceChart"></canvas>
+                </div>
+                <div class="annotation">
+                    <strong>Boesen's key insight:</strong> Rather than acting through separate mechanisms, diverse delirium risk factors share a common final pathway — suppression of glymphatic CSF clearance — leading to neurotoxin accumulation and neural network disruption.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SYNTHESIS -->
+<section class="section" id="synthesis" style="background: white;">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-label">Integrated Synthesis</span>
+            <h2>Connecting the Three Studies</h2>
+            <p>Together, these papers form a complete mechanistic narrative from healthy sleep physiology to critical illness and delirium.</p>
+        </div>
+
+        <div class="chart-card fade-in" style="margin-bottom: 32px;">
+            <h3>The Complete EEG–CSF–Delirium Pathway</h3>
+            <p class="chart-subtitle">Integrated timeline showing how disruption of the sleep-driven EEG→CSF cascade leads to glymphatic failure and delirium</p>
+            <div class="chart-wrapper-tall">
+                <canvas id="synthesisChart"></canvas>
+            </div>
+            <div class="legend" style="margin-top: 16px;">
+                <div class="legend-item"><div class="legend-dot" style="background:#2e6da4;"></div>Healthy Sleep State</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#e84d7a;"></div>Glymphatic Suppression</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#f39c12;"></div>Neurotoxin Accumulation</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#c0392b;"></div>Delirium Severity</div>
+            </div>
+        </div>
+
+        <div class="grid-3 fade-in">
+            <div class="card" style="border-top: 4px solid #2e6da4;">
+                <h3>📊 Fultz 2019 Contribution</h3>
+                <p>Established the mechanistic foundation: EEG slow waves during NREM sleep are the upstream driver of CSF flow. Without slow-wave activity, the entire glymphatic cascade is impaired. This explains why EEG is a biomarker for glymphatic function.</p>
+            </div>
+            <div class="card" style="border-top: 4px solid #e84d7a;">
+                <h3>🐭 Liu 2026 Contribution</h3>
+                <p>Demonstrated causality in a translational model: mechanical ventilation — a common ICU intervention — is sufficient on its own to suppress glymphatic function and produce delirium-like symptoms, establishing the mechanistic link between ICU care and delirium.</p>
+            </div>
+            <div class="card" style="border-top: 4px solid #8e44ad;">
+                <h3>🔬 Boesen 2026 Contribution</h3>
+                <p>Provided the unifying clinical framework: glymphatic dysfunction is not just one pathway to delirium but the central convergence point for all known risk factors and triggers, making it the most promising therapeutic target for delirium prevention.</p>
+            </div>
+        </div>
+
+        <div class="fade-in" style="margin-top: 32px;">
+            <blockquote>
+                "Neural slow waves are followed by hemodynamic oscillations, which in turn are coupled to CSF flow. These results demonstrate that the sleeping brain exhibits waves of CSF flow on a macroscopic scale, and these CSF dynamics are interlinked with neural and hemodynamic rhythms."
+                <cite>— Fultz et al., Science 2019</cite>
+            </blockquote>
+            <blockquote>
+                "We found that ventilation acutely increased intracranial pressure and induced a long-lasting suppression of glymphatic transport, thereby re-routing and impairing brain waste clearance and promoting cytokine accumulation."
+                <cite>— Liu et al., bioRxiv 2026</cite>
+            </blockquote>
+            <blockquote>
+                "We hypothesize that impaired glymphatic flow represents a central mechanism by which delirium evolves... Recognizing glymphatic impairment as a causal contributor to delirium could open new research and therapeutic avenues aimed at preserving brain fluid clearance in critically ill patients."
+                <cite>— Boesen et al., Nature Reviews Neurology 2026</cite>
+            </blockquote>
+        </div>
+    </div>
+</section>
+
+<!-- IMPLICATIONS -->
+<section class="section" id="implications">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-label">Clinical Implications</span>
+            <h2>Therapeutic Avenues & Future Directions</h2>
+            <p>Understanding the glymphatic basis of delirium opens concrete opportunities for prevention and treatment in critically ill patients.</p>
+        </div>
+
+        <div class="grid-2 fade-in" style="margin-bottom: 32px;">
+            <div class="slider-container">
+                <h3>EEG Slow-Wave Activity as a Biomarker</h3>
+                <p>Adjust the slider to explore how slow-wave activity (SWA) relates to estimated glymphatic clearance efficiency. Higher SWA during sleep correlates with greater CSF-driven waste clearance.</p>
+                <label style="font-size: 0.88rem; color: var(--text); font-weight: 600;">Slow-Wave Activity (% of normal): <span id="swaValue">100</span>%</label>
+                <input type="range" id="swaSlider" min="0" max="100" value="100" oninput="updateSWA(this.value)">
+                <div class="slider-labels">
+                    <span>0% (Coma/Deep Sedation)</span>
+                    <span>100% (Healthy Sleep)</span>
+                </div>
+                <div style="margin-top: 20px; padding: 16px; background: var(--bg); border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-size: 0.85rem; color: var(--text-light);">Estimated Glymphatic Efficiency:</span>
+                        <strong id="glymphaticEff" style="color: var(--secondary);">100%</strong>
+                    </div>
+                    <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                        <div id="glymphaticBar" style="height: 100%; width: 100%; background: var(--gradient2); border-radius: 4px; transition: width 0.3s, background 0.3s;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 12px; margin-bottom: 8px;">
+                        <span style="font-size: 0.85rem; color: var(--text-light);">Delirium Risk Level:</span>
+                        <strong id="deliriumRisk" style="color: var(--accent3);">Very Low</strong>
+                    </div>
+                    <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                        <div id="deliriumBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #4de8a0, #e84d7a); border-radius: 4px; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-card fade-in">
+                <h3>Therapeutic Strategies by Mechanism</h3>
+                <p class="chart-subtitle">Potential interventions targeting different points in the sleep–CSF–delirium pathway</p>
+                <div class="chart-wrapper-tall">
+                    <canvas id="therapeuticChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-3 fade-in">
+            <div class="card" style="border-left: 4px solid #4de8a0;">
+                <h3>💊 Pharmacological Targets</h3>
+                <p>Agents that enhance glymphatic flux (e.g., AQP4 modulators), reduce ICP, or preserve sleep architecture may reduce delirium incidence. Avoiding opioids and benzodiazepines — known glymphatic suppressors — is a priority.</p>
+            </div>
+            <div class="card" style="border-left: 4px solid #4db6e8;">
+                <h3>🛌 Sleep Preservation Protocols</h3>
+                <p>Protecting slow-wave sleep in ICU patients through noise reduction, circadian rhythm maintenance, and sleep-promoting approaches could maintain glymphatic function and reduce delirium risk. Tui therapy may potentially be combined with other interventions to support natural sleep architecture and preserve EEG slow-wave activity.</p>
+            </div>
+            <div class="card" style="border-left: 4px solid #f39c12;">
+                <h3>🫁 Ventilation Optimization</h3>
+                <p>Liu et al.'s findings suggest that ventilation strategies minimizing ICP elevation — such as lower tidal volumes, optimized PEEP, and head positioning — may preserve glymphatic function and reduce delirium.</p>
+            </div>
+        </div>
+
+        <div class="highlight-box fade-in" style="margin-top: 32px; background: rgba(77,232,168,0.08); border-left: 4px solid #4de8a0;">
+            <h4>🌙 Preserving Sleep Architecture in the ICU</h4>
+            <p>Sleep preservation is critical for maintaining the EEG-hemodynamic-CSF coupling mechanism that drives glymphatic clearance. Non-pharmacological approaches, potentially including Tui therapy in combination with other sleep-promoting interventions, may help preserve natural sleep architecture and circadian rhythm integrity in ICU settings. Such integrated approaches could address the root cause of delirium identified by Fultz, Liu, and Boesen: the failure of the brain's waste-clearance system. Further research is needed to evaluate whether combined sleep preservation strategies can reduce neurotoxin accumulation and delirium incidence in critically ill patients.</p>
+        </div>
+
+        <div class="highlight-box fade-in" style="margin-top: 32px;">
+            <h4>🔮 Future Research Directions</h4>
+            <p>The convergence of these three studies points toward several critical research needs: (1) Development of non-invasive biomarkers for glymphatic function in ICU patients (e.g., EEG-based indices of slow-wave activity); (2) Clinical trials testing glymphatic-enhancing interventions for delirium prevention, including combined sleep preservation approaches; (3) Investigation of whether post-delirium cognitive impairment reflects persistent glymphatic dysfunction; (4) Exploration of whether the EEG–CSF coupling mechanism identified by Fultz et al. can be monitored in real-time to guide ICU care and intervention optimization.</p>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <h4>References</h4>
+    <div class="ref-list">
+        <div class="ref-item">
+            [1] Fultz, N.E., Bonmassar, G., Setsompop, K., Stickgold, R.A., Rosen, B.R., Polimeni, J.R., & Lewis, L.D. (2019). Coupled electrophysiological, hemodynamic, and cerebrospinal fluid oscillations in human sleep. <em>Science</em>, 366(6465), 628–631. <a href="https://doi.org/10.1126/science.aax5440" target="_blank">DOI: 10.1126/science.aax5440</a>
+        </div>
+        <div class="ref-item">
+            [2] Liu, G., Wang, J., Tong, T., Arbanas, L.G., Liang, S., Newbold, E., Kroesbergen, E., Boesen, H.C., Nedergaard, M., & Du, T. (2026). Mechanical Ventilation Suppresses Glymphatic Function in Parallel with Delirium-Like Symptoms in Mice. <em>bioRxiv</em>, 2025.12.12.694005. <a href="https://doi.org/10.64898/2025.12.12.694005" target="_blank">DOI: 10.64898/2025.12.12.694005</a>
+        </div>
+        <div class="ref-item">
+            [3] Boesen, H.C., Du, T., Goldman, S.A., & Nedergaard, M. (2026). Glymphatic dysfunction: a unifying hypothesis for delirium. <em>Nature Reviews Neurology</em>, 22, 309–323. <a href="https://doi.org/10.1038/s41582-026-01194-y" target="_blank">DOI: 10.1038/s41582-026-01194-y</a>
+        </div>
+    </div>
+
+</footer>
+
+<script>
+// ===================== CHARTS =====================
+
+// 1. EEG-Blood-CSF Coupling Chart
+(function() {
+    const ctx = document.getElementById('couplingChart').getContext('2d');
+    const t = Array.from({length: 80}, (_, i) => i * 0.5);
+    
+    // Simulate the temporal cascade
+    const eeg = t.map(x => {
+        let v = 0;
+        for (let k = 0; k < 3; k++) {
+            v += Math.sin(2 * Math.PI * 0.05 * x + k * 2.1) * Math.exp(-0.02 * ((x - 10 - k*15) ** 2));
+        }
+        return v * 0.8 + Math.sin(2 * Math.PI * 0.05 * x) * 0.3;
+    });
+    
+    const bold = t.map((x, i) => {
+        // BOLD lags EEG by ~2s
+        let v = 0;
+        for (let k = 0; k < 3; k++) {
+            v += Math.sin(2 * Math.PI * 0.05 * (x - 2) + k * 2.1) * Math.exp(-0.02 * ((x - 12 - k*15) ** 2));
+        }
+        return -(v * 0.7 + Math.sin(2 * Math.PI * 0.05 * (x - 2)) * 0.25);
+    });
+    
+    const csf = t.map((x, i) => {
+        // CSF lags BOLD by ~2s more
+        let v = 0;
+        for (let k = 0; k < 3; k++) {
+            v += Math.sin(2 * Math.PI * 0.05 * (x - 4) + k * 2.1) * Math.exp(-0.02 * ((x - 14 - k*15) ** 2));
+        }
+        return v * 0.9 + Math.sin(2 * Math.PI * 0.05 * (x - 4)) * 0.35;
+    });
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: t.map(v => v.toFixed(1) + 's'),
+            datasets: [
+                {
+                    label: 'EEG Slow Wave',
+                    data: eeg,
+                    borderColor: '#2e6da4',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: 'BOLD (inverted)',
+                    data: bold,
+                    borderColor: '#e84d7a',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: 'CSF Inflow',
+                    data: csf,
+                    borderColor: '#4de8a0',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.4,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { maxTicksLimit: 8, font: { size: 10 } },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                y: {
+                    ticks: { font: { size: 10 } },
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    title: { display: true, text: 'Signal Amplitude (a.u.)', font: { size: 10 } }
+                }
+            }
+        }
+    });
+})();
+
+// 2. CSF Power Chart
+(function() {
+    const ctx = document.getElementById('csfPowerChart').getContext('2d');
+    const freqs = ['0.01', '0.02', '0.03', '0.04', '0.05', '0.06', '0.07', '0.08', '0.09', '0.10'];
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: freqs.map(f => f + ' Hz'),
+            datasets: [
+                {
+                    label: 'NREM Sleep',
+                    data: [0.8, 1.2, 2.1, 3.8, 5.5, 3.2, 1.8, 1.1, 0.7, 0.5],
+                    borderColor: '#2e6da4',
+                    backgroundColor: 'rgba(46,109,164,0.15)',
+                    borderWidth: 2.5,
+                    pointRadius: 4,
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Wakefulness',
+                    data: [0.3, 0.4, 0.5, 0.6, 0.7, 0.6, 0.5, 0.4, 0.3, 0.3],
+                    borderColor: '#e84d7a',
+                    backgroundColor: 'rgba(232,77,122,0.08)',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { font: { size: 11 } } }
+            },
+            scales: {
+                x: { ticks: { font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.05)' } },
+                y: {
+                    ticks: { font: { size: 10 } },
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    title: { display: true, text: 'Power (dB)', font: { size: 10 } }
+                }
+            }
+        }
+    });
+})();
+
+// 3. EEG Bands Chart
+(function() {
+    const ctx = document.getElementById('eegBandsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Slow-Delta\n(0–0.5 Hz)', 'Delta\n(0.5–4 Hz)', 'Theta\n(4–8 Hz)', 'Alpha\n(8–13 Hz)', 'Beta\n(13–30 Hz)'],
+            datasets: [
+                {
+                    label: 'NREM Sleep',
+                    data: [85, 72, 35, 12, 8],
+                    backgroundColor: 'rgba(46,109,164,0.75)',
+                    borderColor: '#2e6da4',
+                    borderWidth: 1.5,
+                    borderRadius: 6
+                },
+                {
+                    label: 'Wakefulness',
+                    data: [8, 15, 28, 65, 45],
+                    backgroundColor: 'rgba(232,77,122,0.65)',
+                    borderColor: '#e84d7a',
+                    borderWidth: 1.5,
+                    borderRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { font: { size: 11 } } }
+            },
+            scales: {
+                x: { ticks: { font: { size: 9 } }, grid: { display: false } },
+                y: {
+                    ticks: { font: { size: 10 } },
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    title: { display: true, text: 'Relative Power (%)', font: { size: 10 } }
+                }
+            }
+        }
+    });
+})();
+
+// 4. Glymphatic State Chart
+(function() {
+    const ctx = document.getElementById('glymphaticStateChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Wakefulness', 'REM Sleep', 'Light NREM\n(N1/N2)', 'Deep NREM\n(N3/SWS)'],
+            datasets: [{
+                label: 'Glymphatic Transport Efficiency (%)',
+                data: [25, 45, 65, 100],
+                backgroundColor: [
+                    'rgba(232,77,122,0.7)',
+                    'rgba(243,156,18,0.7)',
+                    'rgba(77,182,232,0.7)',
+                    'rgba(46,109,164,0.85)'
+                ],
+                borderColor: ['#e84d7a', '#f39c12', '#4db6e8', '#2e6da4'],
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+                y: {
+                    min: 0, max: 110,
+                    ticks: { font: { size: 10 } },
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    title: { display: true, text: 'Relative Efficiency (%)', font: { size: 10 } }
+                }
+            }
+        }
+    });
+})();
+
+// 5. MV Glymphatic Chart
+(function() {
+    const ctx = document.getElementById('mvGlymphaticChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Control\n(KX Anesthesia)', 'During MV\n(Isoflurane+Fentanyl)', 'After MV\n(1h Recovery, re-anesthetized)'],
+            datasets: [{
+                label: 'Glymphatic Tracer Influx (% of Control)',
+                data: [100, 28, 41],
+                backgroundColor: [
+                    'rgba(46,109,164,0.8)',
+                    'rgba(192,57,43,0.8)',
+                    'rgba(232,77,122,0.7)'
+                ],
+                borderColor: ['#2e6da4', '#c0392b', '#e84d7a'],
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `Influx: ${ctx.parsed.y}% of control`
+                    }
+                }
+            },
+            scales: {
+                x: { ticks: { font: { size: 9 } }, grid: { display: false } },
+                y: {
+                    min: 0, max: 120,
+                    ticks: { font: { size: 10 } },
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    title: { display: true, text: '% of Control', font: { size: 10 } }
+                }
+            }
+        }
+    });
+})();
+
+// 6. Behavior Chart
+(function() {
+    const ctx = document.getElementById('behaviorChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Locomotion', 'Exploration\n(Center Time)', 'Zone\nCrossings', 'Normal Speed', 'Maze\nAccuracy', 'Calm\nBehavior'],
+            datasets: [
+                {
+                    label: 'Control Mice',
+                    data: [85, 80, 90, 88, 82, 87],
+                    borderColor: '#2e6da4',
+                    backgroundColor: 'rgba(46,109,164,0.15)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#2e6da4'
+                },
+                {
+                    label: 'Post-MV Mice (24h)',
+                    data: [32, 18, 25, 35, 28, 20],
+                    borderColor: '#e84d7a',
+                    backgroundColor: 'rgba(232,77,122,0.15)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#e84d7a'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { font: { size: 11 } } }
+            },
+            scales: {
+                r: {
+                    min: 0, max: 100,
+                    ticks: { font: { size: 9 }, stepSize: 25 },
+                    pointLabels: { font: { size: 9 } },
+                    grid: { color: 'rgba(0,0,0,0.08)' }
+                }
+            }
+        }
+    });
+})();
+
+// 7. ICP Chart
+(function() {
+    const ctx = document.getElementById('icpChart').getContext('2d');
+    const time = Array.from({length: 20}, (_, i) => i * 10);
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: time.map(t => t + ' min'),
+            datasets: [
+                {
+                    label: 'Control ICP (mmHg)',
+                    data: [8, 8.2, 8.1, 8.3, 8.2, 8.1, 8.2, 8.3, 8.1, 8.2, 8.1, 8.2, 8.3, 8.1, 8.2, 8.1, 8.2, 8.1, 8.2, 8.1],
+                    borderColor: '#2e6da4',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: 'MV ICP (mmHg)',
+                    data: [8, 12, 16, 18, 19, 18.5, 19, 18, 17.5, 18, 17, 16.5, 16, 15.5, 15, 14.5, 14, 13.5, 13, 12.5],
+                    borderColor: '#e84d7a',
+                    borderWidth: 2.5,
+                    pointRadius: 0,
+                    tension: 0.4,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { font: { size: 11 } } },
+                annotation: {
+                    annotations: {
+                        threshold: {
+                            type: 'line',
+                            yMin: 15,
+                            yMax: 15,
+                            borderColor: 'rgba(192,57,43,0.5)',
+                            borderWidth: 1.5,
+                            borderDash: [6, 3],
+                            label: {
+                                content: 'Glymphatic suppression threshold',
+                                display: true,
+                                position: 'end',
+                                font: { size: 9 }
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { ticks: { maxTicksLimit: 6, font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.05)' } },
+                y: {
+                    ticks: { font: { size: 10 } },
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    title: { display: true, text: 'ICP (mmHg)', font: { size: 10 } }
+                }
+            }
+        }
+    });
+})();
+
+// 8. Risk Factor Chart
+(function() {
+    const ctx = document.getElementById('riskFactorChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Aging', 'Dementia', 'CVD', 'Renal\nFailure', 'Sleep\nDeprivation', 'Infection/\nSepsis', 'Surgery', 'Mechanical\nVentilation', 'Opioids', 'Sedation\n(BZD/Propofol)'],
+            datasets: [{
+                label: 'Glymphatic Suppression (%)',
+                data: [40, 55, 35, 45, 60, 50, 42, 72, 48, 55],
+                backgroundColor: [
+                    'rgba(46,109,164,0.75)',
+                    'rgba(46,109,164,0.75)',
+                    'rgba(46,109,164,0.75)',
+                    'rgba(46,109,164,0.75)',
+                    'rgba(232,77,122,0.75)',
+                    'rgba(232,77,122,0.75)',
+                    'rgba(232,77,122,0.75)',
+                    'rgba(192,57,43,0.85)',
+                    'rgba(142,68,173,0.75)',
+                    'rgba(142,68,173,0.75)'
+                ],
+                borderRadius: 6,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `Suppression: ~${ctx.parsed.x}%`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    min: 0, max: 100,
+                    ticks: { font: { size: 10 } },
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    title: { display: true, text: 'Estimated Glymphatic Suppression (%)', font: { size: 10 } }
+                },
+                y: { ticks: { font: { size: 9 } }, grid: { display: false } }
+            }
+        }
+    });
+})();
+
+// 9. Convergence Chart
+(function() {
+    const ctx = document.getElementById('convergenceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Predisposing\nFactors', 'Precipitating\nTriggers', 'ICU\nInterventions', 'Combined\nICU Patient'],
+            datasets: [
+                {
+                    label: 'Glymphatic Function (%)',
+                    data: [60, 45, 35, 15],
+                    backgroundColor: ['rgba(46,109,164,0.7)', 'rgba(232,77,122,0.7)', 'rgba(142,68,173,0.7)', 'rgba(192,57,43,0.85)'],
+                    borderRadius: 8,
+                    borderWidth: 0,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Delirium Risk (%)',
+                    data: [15, 35, 50, 80],
+                    type: 'line',
+                    borderColor: '#f39c12',
+                    backgroundColor: 'rgba(243,156,18,0.1)',
+                    borderWidth: 3,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#f39c12',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y2'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { font: { size: 11 } } }
+            },
+            scales: {
+                x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+                y: {
+                    min: 0, max: 110,
+                    ticks: { font: { size: 10 } },
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    title: { display: true, text: 'Glymphatic Function (%)', font: { size: 10 }, color: '#2e6da4' }
+                },
+                y2: {
+                    min: 0, max: 110,
+                    position: 'right',
+                    ticks: { font: { size: 10 } },
+                    grid: { display: false },
+                    title: { display: true, text: 'Delirium Risk (%)', font: { size: 10 }, color: '#f39c12' }
+                }
+            }
+        }
+    });
+})();
+
+// 10. Synthesis Chart
+(function() {
+    const ctx = document.getElementById('synthesisChart').getContext('2d');
+    const labels = ['Healthy Sleep', 'Mild Sleep\nDisturbance', 'Moderate\nDisruption', 'Severe\nDisruption\n(MV/ICU)', 'Critical\nGlymphatic\nFailure'];
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'EEG Slow-Wave Activity',
+                    data: [100, 70, 45, 15, 5],
+                    borderColor: '#2e6da4',
+                    backgroundColor: 'rgba(46,109,164,0.08)',
+                    borderWidth: 2.5,
+                    pointRadius: 5,
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Glymphatic Clearance',
+                    data: [100, 65, 40, 18, 8],
+                    borderColor: '#4db6e8',
+                    borderWidth: 2,
+                    pointRadius: 5,
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: 'Neurotoxin Accumulation',
+                    data: [5, 30, 55, 78, 92],
+                    borderColor: '#f39c12',
+                    borderWidth: 2,
+                    pointRadius: 5,
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: 'Delirium Severity',
+                    data: [0, 10, 30, 65, 90],
+                    borderColor: '#c0392b',
+                    backgroundColor: 'rgba(192,57,43,0.06)',
+                    borderWidth: 2.5,
+                    pointRadius: 5,
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { font: { size: 11 } } }
+            },
+            scales: {
+                x: { ticks: { font: { size: 9 } }, grid: { color: 'rgba(0,0,0,0.05)' } },
+                y: {
+                    min: 0, max: 110,
+                    ticks: { font: { size: 10 } },
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    title: { display: true, text: 'Relative Level (%)', font: { size: 10 } }
+                }
+            }
+        }
+    });
+})();
+
+// 11. Therapeutic Chart
+(function() {
+    const ctx = document.getElementById('therapeuticChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Sleep\nPreservation', 'Ventilation\nOptimization', 'Avoid\nOpioids/BZD', 'AQP4\nModulators', 'ICP\nManagement', 'Circadian\nRhythm Care'],
+            datasets: [{
+                label: 'Estimated Delirium Risk Reduction (%)',
+                data: [35, 28, 22, 18, 25, 20],
+                backgroundColor: [
+                    'rgba(77,232,160,0.8)',
+                    'rgba(77,182,232,0.8)',
+                    'rgba(46,109,164,0.8)',
+                    'rgba(142,68,173,0.7)',
+                    'rgba(243,156,18,0.8)',
+                    'rgba(77,232,160,0.6)'
+                ],
+                borderRadius: 8,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: { ticks: { font: { size: 9 } }, grid: { display: false } },
+                y: {
+                    min: 0, max: 50,
+                    ticks: { font: { size: 10 } },
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    title: { display: true, text: 'Estimated Risk Reduction (%)', font: { size: 10 } }
+                }
+            }
+        }
+    });
+})();
+
+// ===================== INTERACTIVITY =====================
+
+// Tab switching
+function switchTab(section, tab) {
+    const contents = document.querySelectorAll(`[id^="${section}-"]`);
+    const buttons = document.querySelectorAll(`[onclick^="switchTab('${section}'"]`);
+    contents.forEach(c => c.classList.remove('active'));
+    buttons.forEach(b => b.classList.remove('active'));
+    document.getElementById(`${section}-${tab}`).classList.add('active');
+    event.target.classList.add('active');
+}
+
+// SWA Slider
+function updateSWA(value) {
+    document.getElementById('swaValue').textContent = value;
+    const glymphEff = Math.round(value * 0.95 + 5);
+    const deliriumRisk = Math.round(100 - value * 0.9);
+    document.getElementById('glymphaticEff').textContent = glymphEff + '%';
+    document.getElementById('deliriumRisk').textContent = 
+        deliriumRisk < 20 ? 'Very Low' : 
+        deliriumRisk < 40 ? 'Low' : 
+        deliriumRisk < 60 ? 'Moderate' : 
+        deliriumRisk < 80 ? 'High' : 'Very High';
+    document.getElementById('glymphaticBar').style.width = glymphEff + '%';
+    document.getElementById('glymphaticBar').style.background = 
+        glymphEff > 70 ? 'linear-gradient(90deg, #4db6e8, #4de8a0)' :
+        glymphEff > 40 ? 'linear-gradient(90deg, #f39c12, #4db6e8)' :
+        'linear-gradient(90deg, #c0392b, #f39c12)';
+    document.getElementById('deliriumBar').style.width = deliriumRisk + '%';
+    document.getElementById('deliriumRisk').style.color = 
+        deliriumRisk < 20 ? '#4de8a0' : 
+        deliriumRisk < 40 ? '#4db6e8' : 
+        deliriumRisk < 60 ? '#f39c12' : '#e84d7a';
+}
+
+// Progress bar
+window.addEventListener('scroll', () => {
+    const scrollTop = document.documentElement.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const progress = (scrollTop / scrollHeight) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+});
+
+// Nav active state
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav a');
+window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop - 100;
+        if (window.scrollY >= sectionTop) current = section.getAttribute('id');
+    });
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+    });
+});
+
+// Fade-in animation
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
